@@ -54,7 +54,7 @@ p1 <- filter(m1, player == 342459) #do for one player first
 
 data <- cbind(p1$x, p1$y)  #xy coordinates
 
-ntrain <- 5  #number training samples
+ntrain <- 10  #number training samples
 h <- 1 #prediction steps ahead
 
 upperlimit <- 2500 
@@ -98,22 +98,22 @@ for(i in 1:upperlimit){
 
 #estimate parameters by MLE
  fit_gaussian <- fitSSM(model_gaussian, inits = rep(0.1,6), method = "BFGS")
- #out_gaussian <- KFS(fit_gaussian$model)
+ out_gaussian <- KFS(fit_gaussian$model)
  pred <- predict(fit_gaussian$model, n.ahead = h, interval = "prediction", level = 0.95)  #predict h-step ahead
  predwhere[i, ] <- c(pred$y1[h, "fit"], pred$y2[h, "fit"])
  #dev.set(which=2)
  points(x=data[(i+ntrain-1+h), 1], y=data[(i+ntrain-1+h), 2], pch = 19, col = "red") #true position in red
  points(x=predwhere[i, 1], y=predwhere[i, 2], pch=19, col="blue")  #predicted position in blue
-# rect(xleft=pred$y1[h, "lwr"], ybottom=pred$y2[h, "lwr"], xright=pred$y1[h, "upr"], ytop=pred$y2[h, "upr"], density=30, col="blue", angle=-30, border="transparent") #plot confidence rectangle
+rect(xleft=pred$y1[h, "lwr"], ybottom=pred$y2[h, "lwr"], xright=pred$y1[h, "upr"], ytop=pred$y2[h, "upr"], density=30, col="blue", angle=-30, border="transparent") #plot confidence rectangle
 
 #one-step ahead only to predict latent states
-# xt <- out_gaussian$a[nrow(out_gaussian$a), ]  #predicted latent states
-# vpred[i] <- sqrt(xt[3]^2+xt[4]^2)  #extract the last two velocity components and compute predicted speed
+ xt <- out_gaussian$a[nrow(out_gaussian$a), ]  #predicted latent states
+ vpred[i] <- sqrt(xt[3]^2+xt[4]^2)  #extract the last two velocity components and compute predicted speed
 # dev.set(which=3)
-# plot(vpred[1:i], type="l", ylab="Predicted Speed", xlab = "Time")  #plot predicted speed vs time
+ plot(vpred[1:i], type="l", ylab="Predicted Speed", xlab = "Time")  #plot predicted speed vs time
 
 # plot velocity vector field
-# arrows(x0 = predwhere[i, 1], y0 = predwhere[i, 2], x1 = predwhere[i, 1] + 1000*xt[3], y1 = predwhere[i, 2] + 1000*xt[4], length=0.05, col="blue")
-# segments(x0 = predwhere[i, 1], y0 = predwhere[i, 2], x1 = predwhere[i, 1] + 1000*xt[3], y1 = predwhere[i, 2] + 1000*xt[4], col="blue")
+ arrows(x0 = predwhere[i, 1], y0 = predwhere[i, 2], x1 = predwhere[i, 1] + 1000*xt[3], y1 = predwhere[i, 2] + 1000*xt[4], length=0.05, col="blue")
+ segments(x0 = predwhere[i, 1], y0 = predwhere[i, 2], x1 = predwhere[i, 1] + 1000*xt[3], y1 = predwhere[i, 2] + 1000*xt[4], col="blue")
 }
 #}
